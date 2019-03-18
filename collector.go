@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"github.com/rcrowley/go-metrics"
 	"sync"
 	"time"
@@ -12,16 +13,18 @@ type MetricType string
 
 //
 const (
-	MetricCounterType      MetricType = "counter"
-	MetricGaugeType                   = "gauge"
-	MetricHistogramType               = "histogram"
-	MetricMeterType                   = "meter"
-	MetricTimerType                   = "timer"
-	MetricHealthCheckType             = "health_check"
+	MetricCounterType     MetricType = "counter"
+	MetricGaugeType                  = "gauge"
+	MetricHistogramType              = "histogram"
+	MetricMeterType                  = "meter"
+	MetricTimerType                  = "timer"
+	MetricHealthCheckType            = "health_check"
 )
 
 // Metric :
 type Metric struct {
+	Metric interface{}
+	ID     string
 	Name   string
 	Type   MetricType
 	Values map[string]interface{}
@@ -81,6 +84,8 @@ func (c *Collector) Start() {
 				c.registry.Each(func(name string, i interface{}) {
 					metric := NewMetric()
 					metric.Name = name
+					metric.ID = fmt.Sprintf("%p", i)
+					metric.Metric = i
 					switch m := i.(type) {
 					case metrics.Counter:
 						metric.Type = MetricCounterType
